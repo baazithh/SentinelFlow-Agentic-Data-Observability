@@ -8,45 +8,54 @@ app = FastAPI()
 # Enhanced CORS for local development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows your Next.js frontend to connect
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Helper to ensure we connect to the right DB file path
 DB_PATH = os.path.join(os.getcwd(), 'sentinel_data.db')
 
 @app.get("/alerts")
 def get_alerts():
     try:
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
-        # Fetch the most recent pending error
-        cursor.execute('SELECT timestamp, log_text FROM error_logs WHERE status = "pending" ORDER BY timestamp DESC LIMIT 1')
-        alert = cursor.fetchone()
-        conn.close()
-        
-        if alert:
-            return {
-                "timestamp": alert[0],
-                "error": alert[1],
-                "ai_suggestion": "Apply default weight (0.0) for NULL values in ETL script."
-            }
-        return {"message": "All systems nominal"}
+        # Added timeout to prevent locking during the white/black theme shifts
+        with sqlite3.connect(DB_PATH, timeout=20) as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT timestamp, log_text FROM error_logs WHERE status = "pending" ORDER BY timestamp DESC LIMIT 1')
+            alert = cursor.fetchone()
+            
+            if alert:
+                return {
+                    "timestamp": alert[0],
+                    "error": alert[1],
+                    "ai_suggestion": "Apply default weight (0.0) for NULL values in ETL script."
+                }
+            return {"message": "All systems nominal"}
     except Exception as e:
         return {"error": str(e)}
+
+@app.get("/history")
+def get_history():
+    """New endpoint to show the count of fixed data entries"""
+    try:
+        with sqlite3.connect(DB_PATH, timeout=20) as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT COUNT(*) FROM error_logs WHERE status = "resolved"')
+            count = cursor.fetchone()[0]
+            return {"count": count}
+    except Exception as e:
+        return {"count": 0}
 
 @app.post("/fix")
 def apply_fix():
     try:
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
-        # Resolve all pending logs
-        cursor.execute('UPDATE error_logs SET status = "resolved" WHERE status = "pending"')
-        conn.commit()  # FIXED: Changed from db.commit() to conn.commit()
-        conn.close()
-        return {"status": "success", "message": "Patch Applied"}
+        with sqlite3.connect(DB_PATH, timeout=20) as conn:
+            cursor = conn.cursor()
+            # Mark only current pending items as resolved
+            cursor.execute('UPDATE error_logs SET status = "resolved" WHERE status = "pending"')
+            conn.commit()
+            return {"status": "success", "message": "Patch Applied"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
