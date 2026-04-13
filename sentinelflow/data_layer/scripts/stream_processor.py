@@ -1,20 +1,20 @@
 import sqlite3
-import json
 import time
 import random
 
-# Initialize local DB
-db = sqlite3.connect('sentinel_data.db')
-cursor = db.cursor()
-cursor.execute('CREATE TABLE IF NOT EXISTS inventory (id INTEGER, status TEXT, weight REAL)')
-cursor.execute('CREATE TABLE IF NOT EXISTS error_logs (timestamp TEXT, log_text TEXT, status TEXT)')
-db.commit()
-
 def run_pipeline():
+    # Adding timeout=20 handles the 'database is locked' error
+    db = sqlite3.connect('sentinel_data.db', timeout=20)
+    cursor = db.cursor()
+    
+    # Ensure tables exist
+    cursor.execute('CREATE TABLE IF NOT EXISTS inventory (id INTEGER, status TEXT, weight REAL)')
+    cursor.execute('CREATE TABLE IF NOT EXISTS error_logs (timestamp TEXT, log_text TEXT, status TEXT)')
+    db.commit()
+
     print("🚀 Pipeline Started Locally...")
     while True:
         order_id = random.randint(1000, 9999)
-        # Randomly inject a 'None' (null) to simulate a data quality failure
         weight = random.choice([random.uniform(1.0, 50.0), None])
         
         try:
@@ -23,7 +23,9 @@ def run_pipeline():
             
             cursor.execute('INSERT INTO inventory VALUES (?, ?, ?)', (order_id, 'processed', weight))
             db.commit()
+            print(f"✅ Processed Order {order_id}")
         except Exception as e:
+            # The timeout helps here too when writing the error
             cursor.execute('INSERT INTO error_logs VALUES (datetime("now"), ?, "pending")', (str(e),))
             db.commit()
             print(f"❌ Error logged: {e}")
