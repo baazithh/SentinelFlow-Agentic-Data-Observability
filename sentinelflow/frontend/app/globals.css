@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --background: #020617;
+    /* Deep Slate */
+    --foreground: #f8fafc;
+}
+
+body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', sans-serif;
+}
+
+/* Custom Glassmorphism Effect */
+.glass-card {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Emerald Accent for Health */
+.status-healthy {
+    @apply text-emerald-400 bg-emerald-950/30 border-emerald-500/50;
+}
