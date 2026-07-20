@@ -4,7 +4,7 @@
 SentinelFlow is an agentic data observability platform designed to monitor ETL pipelines in real-time and provide autonomous self-healing for schema and data quality errors. It helps data engineers reduce downtime by automatically patching common SQL inconsistencies.
 
 ## Demo Video
-[Insert your YouTube link here]
+[Watch the SentinelFlow Demo](https://drive.google.com/file/d/1SaKDPB5RsVLSjeTxN8gDTg_nbTuPnfzr/view?usp=sharing)
 
 ## Key Features
 - **Real-time Monitoring**: Tracks pipeline execution states via FastAPI.
