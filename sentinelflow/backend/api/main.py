@@ -14,15 +14,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DB_PATH = os.path.join(os.getcwd(), 'sentinel_data.db')
+# Pointing to the database file that contains your 'error_logs' table
+DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'your_database_file.db')
 
 @app.get("/alerts")
 def get_alerts():
     try:
-        # Added timeout to prevent locking during the white/black theme shifts
         with sqlite3.connect(DB_PATH, timeout=20) as conn:
             cursor = conn.cursor()
-            cursor.execute('SELECT timestamp, log_text FROM error_logs WHERE status = "pending" ORDER BY timestamp DESC LIMIT 1')
+            cursor.execute('SELECT timestamp, message FROM error_logs WHERE status = "pending" ORDER BY timestamp DESC LIMIT 1')
             alert = cursor.fetchone()
             
             if alert:
@@ -37,7 +37,6 @@ def get_alerts():
 
 @app.get("/history")
 def get_history():
-    """New endpoint to show the count of fixed data entries"""
     try:
         with sqlite3.connect(DB_PATH, timeout=20) as conn:
             cursor = conn.cursor()
@@ -52,7 +51,6 @@ def apply_fix():
     try:
         with sqlite3.connect(DB_PATH, timeout=20) as conn:
             cursor = conn.cursor()
-            # Mark only current pending items as resolved
             cursor.execute('UPDATE error_logs SET status = "resolved" WHERE status = "pending"')
             conn.commit()
             return {"status": "success", "message": "Patch Applied"}
