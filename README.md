@@ -1,19 +1,29 @@
-# SentinelFlow: Agentic Data Observability 🛰️
+# SentinelFlow: Agentic Data Observability Platform
 
-SentinelFlow is a proactive data engineering dashboard that doesn't just monitor pipelines—it fixes them. Using a "Human-in-the-Loop" AI Agent, it detects data quality failures in real-time and proposes SQL/ETL hotfixes.
+## Description
+SentinelFlow is an agentic data observability platform designed to monitor ETL pipelines in real-time and provide autonomous self-healing for schema and data quality errors. It helps data engineers reduce downtime by automatically patching common SQL inconsistencies.
 
-## 🚀 The Architecture
-- **Data Engineering:** Python-based stream simulation with SQLite (simulating an Iceberg/Lakehouse layer).
-- **AI Agent:** Built with a custom Logic Engine (LangChain ready) to diagnose pipeline logs.
-- **Web Interface:** Next.js 15 dashboard with real-time polling and one-click remediation.
+## Demo Video
+[Insert your YouTube link here]
 
-## 🛠️ Tech Stack
-- **Frontend:** Next.js, Tailwind CSS, Lucide Icons
-- **Backend:** FastAPI, Pydantic
-- **Data:** Python, SQLite
-- **Environment:** Arch Linux
+## Key Features
+- **Real-time Monitoring**: Tracks pipeline execution states via FastAPI.
+- **Agentic Self-Healing**: Automatically detects `OperationalError` events and executes targeted SQL patches.
+- **Glassmorphic UI**: Built with Next.js 14 and Tailwind CSS for a modern, high-contrast dashboard experience.
+- **Observability Engine**: Provides deep visibility into data asset health.
 
-## 🏁 Quick Start
-1. **Start the Pipeline:** `python data_layer/scripts/stream_processor.py`
-2. **Launch the API:** `uvicorn backend.api.main:app --reload`
-3. **Run the Dashboard:** `cd frontend && npm run dev`
+## Technologies Used
+- **Backend**: FastAPI (Python)
+- **Frontend**: Next.js 14, Tailwind CSS
+- **Database**: SQLite (SQL-based error injection & recovery)
+- **Deployment**: Arch Linux environment
+
+## How to Run
+1. Clone the repository.
+2. Setup the virtual environment: `python -m venv venv && source venv/bin/activate`
+3. Install dependencies: `pip install -r requirements.txt`
+4. Launch the API: `python -m uvicorn main:app --reload`
+5. Access the dashboard to monitor live events.
+
+## Design Philosophy
+SentinelFlow utilizes an agent-based approach to data observability, moving beyond simple alerting to automated remediation. The architecture emphasizes high-performance data processing with a minimalist information hierarchy.
